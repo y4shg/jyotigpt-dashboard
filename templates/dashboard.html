@@ -409,51 +409,6 @@
             </div>
         </div>
 
-        <!-- Analytics Section -->
-        <div class="grid">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">📊 JyotiGPT Analytics</h2>
-                </div>
-                <div id="jyotigpt-analytics">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Messages</div>
-                        <div class="stat-value" id="total-messages">-</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Tokens</div>
-                        <div class="stat-value" id="total-tokens">-</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Active Users</div>
-                        <div class="stat-value" id="total-users">-</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Chats</div>
-                        <div class="stat-value" id="total-chats">-</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">🤖 Top Models</h2>
-                </div>
-                <div class="model-list" id="model-list">
-                    <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Loading...</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">👥 Top Users</h2>
-                </div>
-                <div class="model-list" id="user-list">
-                    <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Loading...</p>
-                </div>
-            </div>
-        </div>
-
         <!-- HuggingFace Spaces -->
         <div class="card full-width">
             <div class="card-header">
@@ -565,80 +520,6 @@
     </div>
 
     <script>
-        // Fetch JyotiGPT Analytics
-        async function fetchJyotiGPTData() {
-            try {
-                const response = await fetch('/api/jyotigpt/summary');
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('total-messages').textContent = data.total_messages?.toLocaleString() || '0';
-                    document.getElementById('total-tokens').textContent = data.total_tokens?.toLocaleString() || '0';
-                    document.getElementById('total-users').textContent = data.total_users?.toLocaleString() || '0';
-                    document.getElementById('total-chats').textContent = data.total_chats?.toLocaleString() || '0';
-                }
-            } catch (error) {
-                console.error('Error fetching JyotiGPT data:', error);
-            }
-        }
-
-        // Fetch Model Data
-        async function fetchModels() {
-            try {
-                const response = await fetch('/api/jyotigpt/models');
-                if (response.ok) {
-                    const data = await response.json();
-                    const modelList = document.getElementById('model-list');
-                    
-                    if (data.models && data.models.length > 0) {
-                        modelList.innerHTML = data.models.slice(0, 5).map(model => `
-                            <div class="model-item">
-                                <div>
-                                    <div class="model-name">${model.model_name || 'Unknown'}</div>
-                                </div>
-                                <div class="model-stats">
-                                    <span>📨 ${model.message_count?.toLocaleString() || '0'}</span>
-                                    <span>🔤 ${model.token_count?.toLocaleString() || '0'}</span>
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        modelList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No model data available</p>';
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching models:', error);
-            }
-        }
-
-        // Fetch User Data
-        async function fetchUsers() {
-            try {
-                const response = await fetch('/api/jyotigpt/users');
-                if (response.ok) {
-                    const data = await response.json();
-                    const userList = document.getElementById('user-list');
-                    
-                    if (data.users && data.users.length > 0) {
-                        userList.innerHTML = data.users.slice(0, 5).map(user => `
-                            <div class="model-item">
-                                <div>
-                                    <div class="model-name">${user.username || 'Unknown'}</div>
-                                </div>
-                                <div class="model-stats">
-                                    <span>📨 ${user.message_count?.toLocaleString() || '0'}</span>
-                                    <span>🔤 ${user.token_count?.toLocaleString() || '0'}</span>
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        userList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No user data available</p>';
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        }
-
         // Fetch HuggingFace Spaces
         async function fetchHFSpaces() {
             try {
@@ -725,9 +606,6 @@
 
         // Refresh all data
         function refreshAllData() {
-            fetchJyotiGPTData();
-            fetchModels();
-            fetchUsers();
             fetchHFSpaces();
         }
 
