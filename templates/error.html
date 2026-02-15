@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error {{ code }} - JyotiGPT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0e27;
+            color: #e0e7ff;
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-container {
+            max-width: 600px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00fff9, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #8b92b8;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00fff9, #ff00ff);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e27;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 249, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>{{ code }}</h1>
+        <p>{{ error }}</p>
+        <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}" class="btn">
+            {% if current_user.is_authenticated %}
+                Return to Dashboard
+            {% else %}
+                Return to Login
+            {% endif %}
+        </a>
+    </div>
+</body>
+</html>

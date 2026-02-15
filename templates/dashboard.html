@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JyotiGPT - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght:400;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #131829;
+            --bg-card: #1a1f3a;
+            --accent-cyan: #00fff9;
+            --accent-magenta: #ff00ff;
+            --accent-yellow: #ffff00;
+            --text-primary: #e0e7ff;
+            --text-secondary: #8b92b8;
+            --border: #2a3358;
+            --success: #00ff88;
+            --warning: #ffa500;
+            --error: #ff3366;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 249, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 249, 0.03) 2px, rgba(0, 255, 249, 0.03) 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        .header-title p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 255, 249, 0.3);
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+            border: none;
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 30px rgba(0, 255, 249, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-cyan);
+        }
+
+        .service-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .service-link:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 249, 0.05);
+            transform: translateX(5px);
+        }
+
+        .service-name {
+            font-weight: 600;
+        }
+
+        .service-url {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .space-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .space-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .space-name {
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .space-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-running {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-stopped {
+            background: rgba(255, 165, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .status-error {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            padding: 1rem;
+            background: rgba(255, 51, 102, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            color: var(--error);
+            font-size: 0.9rem;
+        }
+
+        .model-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .model-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .model-name {
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .model-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-title h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">
+                <h1>JyotiGPT</h1>
+                <p>Command Center Dashboard</p>
+            </div>
+            <div class="header-actions">
+                <span class="user-info">Logged in as: <strong>{{ username }}</strong></span>
+                <button class="btn btn-refresh" onclick="refreshAllData()">🔄 Refresh</button>
+                <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 JyotiGPT Analytics</h2>
+                </div>
+                <div id="jyotigpt-analytics">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Messages</div>
+                        <div class="stat-value" id="total-messages">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Tokens</div>
+                        <div class="stat-value" id="total-tokens">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Users</div>
+                        <div class="stat-value" id="total-users">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Chats</div>
+                        <div class="stat-value" id="total-chats">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🤖 Top Models</h2>
+                </div>
+                <div class="model-list" id="model-list">
+                    <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Loading...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">👥 Top Users</h2>
+                </div>
+                <div class="model-list" id="user-list">
+                    <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- HuggingFace Spaces -->
+        <div class="card full-width">
+            <div class="card-header">
+                <h2 class="card-title">🚀 HuggingFace Spaces</h2>
+            </div>
+            <div id="hf-spaces">
+                <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Loading...</p>
+            </div>
+        </div>
+
+        <!-- AI Services -->
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ AI Services</h2>
+                </div>
+                <a href="https://voidai.app" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Void AI</div>
+                        <div class="service-url">voidai.app</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://enter.pollinations.ai" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Pollinations AI</div>
+                        <div class="service-url">enter.pollinations.ai</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://api.navy/dashboard" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">API Navy</div>
+                        <div class="service-url">api.navy/dashboard</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://mnnai.ru/dashboard" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">MNN AI</div>
+                        <div class="service-url">mnnai.ru/dashboard</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://zanity.xyz/dashboard" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Zanity</div>
+                        <div class="service-url">zanity.xyz/dashboard</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://aistudio.google.com" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Google AI Studio</div>
+                        <div class="service-url">aistudio.google.com</div>
+                    </div>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🔧 Internal Services</h2>
+                </div>
+                <a href="https://panel.jyotigpt.us.to" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Portainer</div>
+                        <div class="service-url">panel.jyotigpt.us.to</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://books.jyotigpt.us.to" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Books Website</div>
+                        <div class="service-url">books.jyotigpt.us.to</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://request.jyotigpt.us.to" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Request Books</div>
+                        <div class="service-url">request.jyotigpt.us.to</div>
+                    </div>
+                    <span>→</span>
+                </a>
+                <a href="https://dash.cloudflare.com" target="_blank" class="service-link">
+                    <div>
+                        <div class="service-name">Cloudflare</div>
+                        <div class="service-url">dash.cloudflare.com</div>
+                    </div>
+                    <span>→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Uptime Kuma -->
+        <div class="card full-width">
+            <div class="card-header">
+                <h2 class="card-title">📡 System Status</h2>
+                <span class="status-badge status-running">
+                    <span class="pulse"></span>
+                    Monitoring Active
+                </span>
+            </div>
+            <div class="iframe-container">
+                <iframe src="https://status.jyotigpt.us.to" title="Uptime Kuma Status"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch JyotiGPT Analytics
+        async function fetchJyotiGPTData() {
+            try {
+                const response = await fetch('/api/jyotigpt/summary');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('total-messages').textContent = data.total_messages?.toLocaleString() || '0';
+                    document.getElementById('total-tokens').textContent = data.total_tokens?.toLocaleString() || '0';
+                    document.getElementById('total-users').textContent = data.total_users?.toLocaleString() || '0';
+                    document.getElementById('total-chats').textContent = data.total_chats?.toLocaleString() || '0';
+                }
+            } catch (error) {
+                console.error('Error fetching JyotiGPT data:', error);
+            }
+        }
+
+        // Fetch Model Data
+        async function fetchModels() {
+            try {
+                const response = await fetch('/api/jyotigpt/models');
+                if (response.ok) {
+                    const data = await response.json();
+                    const modelList = document.getElementById('model-list');
+                    
+                    if (data.models && data.models.length > 0) {
+                        modelList.innerHTML = data.models.slice(0, 5).map(model => `
+                            <div class="model-item">
+                                <div>
+                                    <div class="model-name">${model.model_name || 'Unknown'}</div>
+                                </div>
+                                <div class="model-stats">
+                                    <span>📨 ${model.message_count?.toLocaleString() || '0'}</span>
+                                    <span>🔤 ${model.token_count?.toLocaleString() || '0'}</span>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        modelList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No model data available</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching models:', error);
+            }
+        }
+
+        // Fetch User Data
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/api/jyotigpt/users');
+                if (response.ok) {
+                    const data = await response.json();
+                    const userList = document.getElementById('user-list');
+                    
+                    if (data.users && data.users.length > 0) {
+                        userList.innerHTML = data.users.slice(0, 5).map(user => `
+                            <div class="model-item">
+                                <div>
+                                    <div class="model-name">${user.username || 'Unknown'}</div>
+                                </div>
+                                <div class="model-stats">
+                                    <span>📨 ${user.message_count?.toLocaleString() || '0'}</span>
+                                    <span>🔤 ${user.token_count?.toLocaleString() || '0'}</span>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        userList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No user data available</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        // Fetch HuggingFace Spaces
+        async function fetchHFSpaces() {
+            try {
+                const response = await fetch('/api/hf/spaces');
+                if (response.ok) {
+                    const spaces = await response.json();
+                    const container = document.getElementById('hf-spaces');
+                    
+                    if (spaces.length > 0) {
+                        container.innerHTML = spaces.map(space => {
+                            const statusClass = space.status === 'RUNNING' ? 'status-running' : 
+                                              space.status === 'error' ? 'status-error' : 'status-stopped';
+                            
+                            return `
+                                <div class="space-item">
+                                    <div class="space-header">
+                                        <div>
+                                            <div class="space-name">${space.name}</div>
+                                            <span class="status-badge ${statusClass}">
+                                                <span class="pulse"></span>
+                                                ${space.status}
+                                            </span>
+                                        </div>
+                                        <div class="space-actions">
+                                            <button class="btn btn-small" onclick="restartSpace('${space.id}')">🔄 Restart</button>
+                                            <button class="btn btn-small" onclick="pauseSpace('${space.id}')">⏸️ Pause</button>
+                                        </div>
+                                    </div>
+                                    ${space.hardware ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Hardware: ${space.hardware}</div>` : ''}
+                                </div>
+                            `;
+                        }).join('');
+                    } else {
+                        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No spaces configured</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching HF spaces:', error);
+                document.getElementById('hf-spaces').innerHTML = '<p class="error-message">Error loading spaces</p>';
+            }
+        }
+
+        // Restart HuggingFace Space
+        async function restartSpace(spaceId) {
+            if (!confirm(`Are you sure you want to restart ${spaceId}?`)) return;
+            
+            try {
+                const response = await fetch(`/api/hf/space/${encodeURIComponent(spaceId)}/restart`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    alert('Space restart initiated');
+                    fetchHFSpaces();
+                } else {
+                    alert('Failed to restart space');
+                }
+            } catch (error) {
+                console.error('Error restarting space:', error);
+                alert('Error restarting space');
+            }
+        }
+
+        // Pause HuggingFace Space
+        async function pauseSpace(spaceId) {
+            if (!confirm(`Are you sure you want to pause ${spaceId}?`)) return;
+            
+            try {
+                const response = await fetch(`/api/hf/space/${encodeURIComponent(spaceId)}/pause`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    alert('Space paused successfully');
+                    fetchHFSpaces();
+                } else {
+                    alert('Failed to pause space');
+                }
+            } catch (error) {
+                console.error('Error pausing space:', error);
+                alert('Error pausing space');
+            }
+        }
+
+        // Refresh all data
+        function refreshAllData() {
+            fetchJyotiGPTData();
+            fetchModels();
+            fetchUsers();
+            fetchHFSpaces();
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshAllData();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(refreshAllData, 300000);
+        });
+    </script>
+</body>
+</html>
